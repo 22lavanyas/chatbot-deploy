@@ -59,10 +59,12 @@ pipeline{
         stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build -t chatbot ."
-                       sh "docker tag chatbot 22lavanyas/chatbot:latest "
-                       sh "docker push 22lavanyas/chatbot:latest "
+                    timeout(time: 15, unit: 'MINUTES') {
+                        withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+                            sh "docker build -t chatbot --pull --no-cache ."
+                            sh "docker tag chatbot 22lavanyas/chatbot:latest "
+                            sh "docker push 22lavanyas/chatbot:latest "
+                        }
                     }
                 }
             }
