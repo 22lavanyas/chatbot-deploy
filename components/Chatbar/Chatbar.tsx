@@ -9,7 +9,7 @@ import { FC, useEffect, useState } from 'react';
 import { ChatFolders } from '../Folders/Chat/ChatFolders';
 import { Search } from '../Sidebar/Search';
 import { ChatbarSettings } from './ChatbarSettings';
-import { Conversations } from './Conversation';
+import { Conversations } from './Conversations';
 
 interface Props {
   loading: boolean;
