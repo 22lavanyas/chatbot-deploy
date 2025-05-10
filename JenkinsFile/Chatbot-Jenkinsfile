@@ -35,14 +35,17 @@ pipeline{
         }
         stage('OWASP FS SCAN') {
             steps {
-                dependencyCheck additionalArguments: '''
-                  --scan ./ \
-                  --disableYarnAudit \
-                  --disableNodeAudit \
-                  --nvdApiKey=4148f1bd-9e49-4988-93e0-a6c39837dbf9
-                ''', odcInstallation: 'DP-Check'
-
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
+                    dependencyCheck additionalArguments: '''
+                      --scan ./ \
+                      --disableYarnAudit \
+                      --disableNodeAudit \
+                      --nvdApiKey=$NVD_KEY \
+                      --nvdApiDelay=6000
+                    ''', odcInstallation: 'DP-Check'
+        
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
             }
         }
         stage('TRIVY FS SCAN') {
