@@ -10,7 +10,7 @@ pipeline{
     stages {
         stage('Checkout from Git'){
             steps{
-                git branch: 'master', url: 'https://github.com/NotHarshhaa/DevOps-Projects/DevOps-Project-28/Chatbot-UI.git'
+                git branch: 'main', url: 'https://github.com/22lavanyas/chatbot-deploy.git'
             }
         }
         stage('Install Dependencies') {
@@ -35,29 +35,43 @@ pipeline{
         }
         stage('OWASP FS SCAN') {
             steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_KEY')]) {
+                    dependencyCheck additionalArguments: '''
+                      --scan ./ \
+                      --disableYarnAudit \
+                      --disableNodeAudit \
+                      --nvdApiKey=$NVD_KEY \
+                      --nvdApiDelay=6000
+                    ''', odcInstallation: 'DP-Check'
+        
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
             }
         }
         stage('TRIVY FS SCAN') {
             steps {
-                sh "trivy fs . > trivyfs.json"
+                sh '''
+                    docker run --rm -v $(pwd):/project aquasec/trivy fs /project > trivyfs.json
+                    '''
+
             }
         }
         stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
-                       sh "docker build -t chatbot ."
-                       sh "docker tag chatbot NotHarshhaa/chatbot:latest "
-                       sh "docker push NotHarshhaa/chatbot:latest "
+                    timeout(time: 15, unit: 'MINUTES') {
+                        withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+                            sh "docker build -t chatbot --pull --no-cache ."
+                            sh "docker tag chatbot 22lavanyas/chatbot:latest "
+                            sh "docker push 22lavanyas/chatbot:latest "
+                        }
                     }
                 }
             }
         }
         stage("TRIVY"){
             steps{
-                sh "trivy image NotHarshhaa/chatbot:latest > trivy.json" 
+                sh "trivy image 22lavanyas/chatbot:latest > trivy.json" 
             }
         }
         stage ("Remove container") {
@@ -68,7 +82,7 @@ pipeline{
         }
         stage('Deploy to container'){
             steps{
-                sh 'docker run -d --name chatbot -p 3000:3000 NotHarshhaa/chatbot:latest'
+                sh 'docker run -d --name chatbot -p 3000:3000 22lavanyas/chatbot:latest'
             }
         }
         stage('Deploy to kubernetes'){
