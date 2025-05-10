@@ -10,3 +10,4 @@ variable "iam-policy-eks" {}
 variable "iam-policy-node" {}
 variable "cluster-name" {}
 variable "eksnode-group-name" {}
+variable "sg-name" {}

@@ -1,0 +1,60 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Ignore local state files
+crash.log
+*.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore the specific file named 'file'
+file
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# IDE/Editor settings
+.vscode/
+.idea/
+*.swp
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+*.pid
+
+# SonarQube
+.sonar/
+.scannerwork/
+
+# Coverage
+coverage/
+lcov-report/
+
+# Logs
+logs/
+*.log
+
+# Others
+.env.*
+*.local
